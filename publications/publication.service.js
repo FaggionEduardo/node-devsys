@@ -20,6 +20,7 @@ async function getById(id) {
 async function create(req) {
   var params = {
     ...req.body,
+    image: req.file.filename,
     userId: req.user.id,
   };
   await Publication.create(params);
@@ -33,7 +34,7 @@ async function update(id, req) {
     throw "Usuário não autorizado";
   }
 
-  Object.assign(publication, req.body);
+  Object.assign(publication, { ...req.body, image: req.file.filename });
 
   await publication.save();
 

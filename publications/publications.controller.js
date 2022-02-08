@@ -4,12 +4,26 @@ const Joi = require("joi");
 const validateRequest = require("_middleware/validate-request");
 const authorize = require("_middleware/authorize");
 const publicationService = require("./publication.service");
+const multer = require("multer");
+const multerConfig = require("../_middleware/multer");
 
 // routes
-router.post("/create", authorize(), createSchema, create);
+router.post(
+  "/create",
+  authorize(),
+  multer(multerConfig).single("image"),
+  createSchema,
+  create
+);
 router.get("/", authorize(), getAll);
 router.get("/:id", authorize(), getById);
-router.put("/:id", authorize(), updateSchema, update);
+router.put(
+  "/:id",
+  authorize(),
+  multer(multerConfig).single("image"),
+  updateSchema,
+  update
+);
 router.delete("/:id", authorize(), _delete);
 
 module.exports = router;
@@ -18,7 +32,6 @@ function createSchema(req, res, next) {
   const schema = Joi.object({
     title: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().required(),
   });
   validateRequest(req, next, schema);
 }
