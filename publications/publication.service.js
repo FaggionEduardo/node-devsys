@@ -1,8 +1,9 @@
 ﻿require("dotenv").config({ path: ".env" });
-const { Publication } = require("_helpers/db");
+const { Publication, User } = require("_helpers/db");
 
 module.exports = {
   getAll,
+  getAllByUser,
   getById,
   create,
   update,
@@ -10,7 +11,16 @@ module.exports = {
 };
 
 async function getAll() {
-  return await Publication.findAll();
+  return await Publication.findAll({
+    include: {
+      model: User,
+      required: true,
+    },
+  });
+}
+
+async function getAllByUser(user_id) {
+  return await Publication.findAll({ where: { userId: user_id } });
 }
 
 async function getById(id) {
@@ -34,15 +44,18 @@ async function update(id, req) {
     throw "Usuário não autorizado";
   }
 
-  Object.assign(publication, { ...req.body, image: req.file.filename });
+  Object.assign(publication, {
+    ...req.body,
+    image: req.file ? req.file.filename : publication.image,
+  });
 
   await publication.save();
 
   return publication;
 }
 
-async function _delete(id) {
-  const publication = await getPublication(id);
+async function _delete(req) {
+  const publication = await getPublication(req.params.id);
 
   //validate
   if (publication.userId !== req.user.id) {
@@ -55,7 +68,13 @@ async function _delete(id) {
 // helper functions
 
 async function getPublication(id) {
-  const publication = await Publication.findByPk(id);
+  const publication = await Publication.findOne({
+    where: { id },
+    include: {
+      model: User,
+      required: true,
+    },
+  });
   if (!publication) throw "Publicação não encontrada";
   return publication;
 }

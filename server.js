@@ -12,6 +12,7 @@ app.use(cors());
 // api routes
 app.use("/users", require("./users/users.controller"));
 app.use("/publications", require("./publications/publications.controller"));
+app.use("/images", express.static("tmp/uploads"));
 
 // global error handler
 app.use(errorHandler);

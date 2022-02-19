@@ -15,8 +15,9 @@ router.post(
   createSchema,
   create
 );
-router.get("/", authorize(), getAll);
-router.get("/:id", authorize(), getById);
+router.get("/", getAll);
+router.get("/getAllByUser/:user_id", authorize(), getAllByUser);
+router.get("/:id", getById);
 router.put(
   "/:id",
   authorize(),
@@ -50,6 +51,13 @@ function getAll(req, res, next) {
     .catch(next);
 }
 
+function getAllByUser(req, res, next) {
+  publicationService
+    .getAllByUser(req.params.user_id)
+    .then((publications) => res.json(publications))
+    .catch(next);
+}
+
 function getById(req, res, next) {
   publicationService
     .getById(req.params.id)
@@ -61,7 +69,6 @@ function updateSchema(req, res, next) {
   const schema = Joi.object({
     title: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().required(),
   });
   validateRequest(req, next, schema);
 }
@@ -75,7 +82,7 @@ function update(req, res, next) {
 
 function _delete(req, res, next) {
   publicationService
-    .delete(req.params.id)
+    .delete(req)
     .then(() => res.json({ message: "Publicação deletada com sucesso" }))
     .catch(next);
 }

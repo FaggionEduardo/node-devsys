@@ -12,6 +12,8 @@ function model(sequelize) {
   const options = {};
 
   var Publication = sequelize.define("Publication", attributes, options);
-
+  Publication.associate = function (models) {
+    Publication.belongsTo(models.User);
+  };
   return Publication;
 }
